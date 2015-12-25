@@ -1,0 +1,953 @@
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;------------------------------------------------------------------------------
+                      00002 ;
+                      00003 ; Title:                        ds30 Loader for PIC18F
+                      00004 ;
+                      00005 ; File description:     Main firmwarefile
+                      00006 ;
+                      00007 ; Copyright:            Copyright � 09-11, Mikael Gustafsson
+                      00008 ;
+                      00009 ; Version:                      3.0.0 April 2011
+                      00010 ;
+                      00011 ; Webpage:                      http://mrmackey.no-ip.org/elektronik/ds30loader/
+                      00012 ;
+                      00013 ; Thanks to:            Claudio Chiculita, this code is based on the Tiny PIC bootloader
+                      00014 ;                                       Fabien Pieraldi for writing the CAN part
+                      00015 ;
+                      00016 ; History:                      3.0.0 New feature: compatible with ds30 Secure Loader
+                      00017 ;                                                 New feature: auto baud rate detection
+                      00018 ;                                             Bugifx: bootloader protection was calculate wrong on PIC18
+                            F devices with 64 byte pagesize                                       
+                      00019 ;                                             Bugfix: receiving non hello command on start-up caused lon
+                            g delay
+                      00020 ;                                             Improvement: merged PIC18FJ firmware
+                      00021 ;                                                 Improvement: increased range of timeout values
+                      00022 ;                                       2.0.5 Bugfix: devices with pagesize != 32 words
+                      00023 ;                                       2.0.4 Bugfix: uart 1 rx interupt flag was checked also for uart 
+                            2
+                      00024 ;                                             New feature: 16-bit brg
+                      00025 ;                                       2.0.3 Bugfix: In some case, CAN engine won't start (bad state on
+                             RB2)
+                      00026 ;                                                 Bugfix: goto protection not working for some devices
+                      00027 ;                                                 Improvement: renamed fosc to oscf for compatibility wi
+                            th some devices
+                      00028 ;                                       2.0.2 Change: node ID configuration moved in settings.inc
+                      00029 ;                                                 New feature: goto protection
+                      00030 ;                                                 New feature: bl protection
+                      00031 ;                                                 Change: size is 7 pages
+                      00032 ;                                                 Bugfix: compatible with devices that has no eeprom (24
+                            50, 4450 and more)
+                      00033 ;                                       2.0.1 New feature: adjustable non hello discard, HELLORETRIES se
+                            tting                                     
+                      00034 ;                                             Improvement: compatible with include files containing both
+                             TXSTA and TXSTA1 definitions
+                      00035 ;                                                 Improvement: 5 or 7 (see section Init) more instructio
+                            ns free to use (CAN)
+                      00036 ;                                       2.0.0 CAN support
+                      00037 ;                                       1.0.2 Replaced old baudrate calculator  
+                      00038 ;                                       1.0.1 Erase is now made just before write to increase reliabilit
+                            y
+                      00039 ;                                       1.0.0 Separated boot timeout and receive timeout
+                      00040 ;                                                 Added range check of times and brg
+                      00041 ;                                       0.9.2 Changed bootloader size to 5 pages (to make room for more 
+                            user init code)
+                      00042 ;                                                 Added tx enable support
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00043 ;                                       0.9.1 1 more instruction free to use
+                      00044 ;                                                 Added watchdog clear
+                      00045 ;                                                 Fixed baudrate error check
+                      00046 ;                                                 Correct buffer size
+                      00047 ;                                       0.9.0 Initial release                                           
+                                                             
+                      00048 ;------------------------------------------------------------------------------
+                      00049 
+                      00050 ;-----------------------------------------------------------------------------
+                      00051 ;    This file is part of ds30 Loader.
+                      00052 ;
+                      00053 ;    ds30 Loader is free software: you can redistribute it and/or modify
+                      00054 ;    it under the terms of the GNU General Public License as published by
+                      00055 ;    the Free Software Foundation.
+                      00056 ;
+                      00057 ;    ds30 Loader is distributed in the hope that it will be useful,
+                      00058 ;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+                      00059 ;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                      00060 ;    GNU General Public License for more details.
+                      00061 ;
+                      00062 ;    You should have received a copy of the GNU General Public License
+                      00063 ;    along with ds30 Loader. If not, see <http://www.gnu.org/licenses/>.
+                      00064 ;------------------------------------------------------------------------------
+                      00065 
+                      00066 
+                      00067 ;------------------------------------------------------------------------------
+                      00068 ; Includes
+                      00069 ;------------------------------------------------------------------------------ 
+Error[105]  : Cannot open file (Include File "D:\HOBBY\PROSJEKTER\MULTITRX\BOOTLOADER\BL-FIRMWARE\SRC\SETTINGS_MULTITRX_10.INC")
+                      00070                 #include "settings_multitrx_10.inc"
+                      00071 
+                      00072 
+                      00073 ;------------------------------------------------------------------------------
+                      00074 ; Defines
+                      00075 ;------------------------------------------------------------------------------ 
+                      00076                 #define VERENC                          0
+                      00077                 #define VERMAC                          0
+                      00078                 
+                      00079                 #define VERMAJ                          3                       ;firmware version major
+                      00080                 #define VERMIN                          0                       ;firmware version minor
+                      00081                 #define VERREV                          0                       ;firmware version revisi
+                            on
+                      00082                 
+                      00083                 #define HELLO                           0xC1
+                      00084                 #define OK                                      'K'                     ;erase/write ok
+                      00085                 #define CHECKSUMERR                     'N'                     ;checksum error
+                      00086                 #define VERFAIL                         'V'                     ;verification failed
+                      00087                 #define BLPROT                          'P'         ;bl protection tripped
+                      00088                 #define UCMD                            'U'         ;unknown command            
+                      00089                 
+                      00090                 #define PWOK                            0xFE    
+                      00091 
+                      00092                 
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Error[113]  : Symbol not previously defined (BLINIT)
+                      00093                 #if BLINIT < 2500
+                      00094                 #define TMRBASE 10
+                      00095         #else
+                      00096                 #define TMRBASE 30
+                      00097         #endif
+                      00098         #define DELBASE         ( (TMRBASE * OSCF) / (3+(4000 * 255 * 6)) )                             
+                            ;delay
+                      00099         #define BLSTART         ( BLINIT / TMRBASE )                                                    
+                                    ;count for boot receive delay
+                      00100         #define BLDELAY         ( BLTIME / TMRBASE )                                                    
+                                    ;count for receive delay
+                      00101         
+                      00102         ifndef USE_BRG16
+                      00103                 #define UBRG    ( (((OSCF / BAUDRATE) / 8) - 1) / 2 )                           ;baudrat
+                            e
+                      00104         else
+                      00105                 #define UBRG    ( (((OSCF / BAUDRATE) / 2) - 1) / 2 )                           ;baudrat
+                            e
+                      00106         endif
+                      00107                 
+                      00108                 #define PAGESIZER       (PAGESIZEW/ROWSIZEW)                                            
+                                            ;pagesize [rows]
+                      00109                 #define ROWSIZEB        (ROWSIZEW*2)                                                    
+                                                    ;rowsize [bytes]
+                      00110                 #define STARTADDR       ( MAX_FLASH - BLPLP * PAGESIZER * ROWSIZEW * 2 )        ;bootloa
+                            der placement
+                      00111                 
+                      00112                 ifdef   IS_PIC18F
+                      00113                         #define ERASE_CODE      b'10010100'
+                      00114                         #define WRITE_CODE      b'10000100'
+                      00115                 else
+                      00116                         #define ERASE_CODE      b'00010100'
+                      00117                         #define WRITE_CODE      b'00000100'
+                      00118                 endif
+                      00119                 
+                      00120                 ; Debug output
+                      00121                 ;messg  STARTADDR_IS    #v(STARTADDR)
+                      00122                 ;messg  UBRG_IS                 #v(UBRG)
+                      00123                 ;messg  delbaesis               #v(DELBASE)     
+                      00124                 ;messg  blstartis               #v(BLSTART)     
+                      00125                 ;messg  bldelayis               #v(BLDELAY)
+                      00126                 
+                      00127 
+                      00128                 
+                      00129                 #ifdef USE_UART1
+                      00130                         #define USE_UART        1
+                      00131                 #endif          
+                      00132                 #ifdef USE_UART2
+                      00133                         #define USE_UART        1               
+                      00134                 #endif  
+                      00135 
+                      00136                                 
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00137 ;------------------------------------------------------------------------------
+                      00138 ; Range check
+                      00139 ;------------------------------------------------------------------------------
+Error[113]  : Symbol not previously defined (OSCF)
+                      00140                 if DELBASE > 255
+                      00141                         error overflow in delay calculation
+                      00142                 endif
+Error[113]  : Symbol not previously defined (BLINIT)
+                      00143                 if BLSTART > 255
+                      00144                         error BLSTART_ is out of range
+                      00145                 endif
+Error[113]  : Symbol not previously defined (BLINIT)
+                      00146                 if BLSTART == 0
+Error[101]  : ERROR: (( BLINIT / 10 ) might be out of range)
+                      00147                         error BLSTART might be out of range
+                      00148                 endif                   
+                      00149                 
+Error[113]  : Symbol not previously defined (BLTIME)
+                      00150                 if BLDELAY > 255
+                      00151                         error BLDELAY_ is out of range
+                      00152                 endif                   
+Error[113]  : Symbol not previously defined (BLTIME)
+                      00153                 if BLDELAY == 0
+Error[101]  : ERROR: (BLDELAY_ might be out of range)
+                      00154                         error BLDELAY_ might be out of range
+                      00155                 endif
+                      00156                 
+                      00157                 
+                      00158 ;------------------------------------------------------------------------------
+                      00159 ; Variables
+                      00160 ;------------------------------------------------------------------------------         
+                      00161                         #define BUFFERSIZE (ROWSIZEB + 1 ) ;row + checksum
+                      00162                         cblock 0x0
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+  00000000            00163                                 buffer          :       BUFFERSIZE
+  00000001            00164                                 crc                     :       1       ;receive checksum
+  00000002            00165                                 dcnt            :       1       ;datacount
+  00000003            00166                                 dcnt2           :       1       ;datacount
+  00000004            00167                                 cnt1            :       1       ;receive timeout timer
+  00000005            00168                                 cnt2            :       1       ;receive timeout timer
+  00000006            00169                                 cnt3            :       1       ;receive timeout timer
+  00000007            00170                                 cntHello        :       1       ;
+  00000008            00171                                 rowcnt          :       1       ;row iterator
+  00000009            00172                                 rowcnt2         :       1       ;
+  0000000A            00173                                 cmd                     :       1       ;command
+  0000000B            00174                                 doerase         :       1       ;do erase before next write
+  0000000C            00175                                 ttblptru        :       1
+  0000000D            00176                                 ttblptrh        :       1
+  0000000E            00177                                 ttblptrl        :       1                               
+                      00178                         endc
+                      00179                                 
+                      00180                 
+                      00181 ;------------------------------------------------------------------------------
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00182 ; Globals & externals
+                      00183 ;------------------------------------------------------------------------------
+                      00184                 
+                      00185                 
+                      00186 ;------------------------------------------------------------------------------
+                      00187 ; Macros
+                      00188 ;------------------------------------------------------------------------------         
+                      00189 SendL   macro sbyte
+                      00190                         movlw   sbyte
+                      00191                         rcall   Send
+                      00192                 endm
+                      00193                 
+                      00194 
+                      00195         
+                      00196 ;------------------------------------------------------------------------------
+                      00197 ; Reset vector
+                      00198 ;------------------------------------------------------------------------------ 
+000000                00199                 org     0x0000
+000000 EF00 F000      00200                 goto    blstart
+                      00201 
+                      00202 
+                      00203 ;------------------------------------------------------------------------------
+                      00204 ; GOTO user application
+                      00205 ;------------------------------------------------------------------------------         
+Error[113]  : Symbol not previously defined (MAX_FLASH)
+Error[113]  : Symbol not previously defined (BLPLP)
+Error[113]  : Symbol not previously defined (PAGESIZEW)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[114]  : Divide by zero
+Error[113]  : Symbol not previously defined (MAX_FLASH)
+Error[113]  : Symbol not previously defined (BLPLP)
+Error[113]  : Symbol not previously defined (PAGESIZEW)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[114]  : Divide by zero
+FFFFFC                00206                 org     STARTADDR - 4   ;space to deposit goto to user application
+FFFFFC 0000           00207 loadusr nop
+FFFFFE 0000           00208                 nop
+                      00209         
+                      00210         
+                      00211 ;------------------------------------------------------------------------------
+                      00212 ; Start of bootloader code
+                      00213 ;------------------------------------------------------------------------------         
+Error[113]  : Symbol not previously defined (MAX_FLASH)
+Error[113]  : Symbol not previously defined (BLPLP)
+Error[113]  : Symbol not previously defined (PAGESIZEW)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[114]  : Divide by zero
+Error[113]  : Symbol not previously defined (MAX_FLASH)
+Error[113]  : Symbol not previously defined (BLPLP)
+Error[113]  : Symbol not previously defined (PAGESIZEW)
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[114]  : Divide by zero
+000000                00214                 org     STARTADDR
+000000                00215 blstart
+                      00216 
+                      00217                 
+                      00218 ;------------------------------------------------------------------------------
+                      00219 ; Trouble shooting tools
+                      00220 ;------------------------------------------------------------------------------         
+                      00221                 ;bra dev_ftest
+                      00222                 
+                      00223                 ; Toggle pin, frequency on pin = PIC frequency / 16
+                      00224                 if 0
+                      00225                         bcf     TRISx, TRISxx
+                      00226 tsfloop         bsf LATx, LATxx
+                      00227                         bcf LATx, LATxx
+                      00228                         bra tsfloop
+                      00229                 endif
+                      00230                 
+                      00231                 
+                      00232 ;------------------------------------------------------------------------------
+                      00233 ; User specific entry code go here
+                      00234 ;------------------------------------------------------------------------------                         
+                      00235 
+Error[105]  : Cannot open file (Include File "D:\HOBBY\PROSJEKTER\MULTITRX\BOOTLOADER\BL-FIRMWARE\SRC\USRCODE_MULTITRX_10.INC")
+                      00236         #include "usrcode_multitrx_10.inc"
+                      00237 
+                      00238                 
+                      00239                 ;----------------------------------------------------------------------
+                      00240                 ; Make uart pins digital
+                      00241                 ;----------------------------------------------------------------------
+                      00242                 ;ifdef  ADCON1
+                      00243                 ;               error Do you need to configura uart pins to be digital? If not, remove t
+                            his line
+                      00244                 ;endif
+                      00245                 ;movlw  b'01100000'             ;xxx disable 
+                      00246                 ;movwf  ADCON1                  ;xxx analog on tx/rx 
+                      00247                 
+                      00248                 
+                      00249                 ;----------------------------------------------------------------------
+                      00250                 ; UART/CAN pps config
+                      00251                 ;----------------------------------------------------------------------
+                      00252                 ifdef   HAS_PPS
+                      00253                         ifdef USE_UART2
+                      00254                                         error You need to configure PPS
+                      00255                                         
+                      00256                                         ; This template maps U2Rx to RP4
+                      00257                                         bcf             RPINR16, RX2DT2R0               ;xxx
+                      00258                                         bcf             RPINR16, RX2DT2R1               ;xxx
+                      00259                                         bsf             RPINR16, RX2DT2R2               ;xxx
+                      00260                                         bcf             RPINR16, RX2DT2R3               ;xxx
+                      00261                                         bcf             RPINR16, RX2DT2R4               ;xxx
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00262                                         
+                      00263                                         ; This template maps RP3 to U2Tx
+                      00264                                         bsf             RPOR3,  RP3R0                   ;xxx
+                      00265                                         bcf             RPOR3,  RP3R1                   ;xxx
+                      00266                                         bsf             RPOR3,  RP3R2                   ;xxx
+                      00267                                         bcf             RPOR3,  RP3R3                   ;xxx
+                      00268                                         bcf             RPOR3,  RP3R4                   ;xxx
+                      00269                         endif
+                      00270                 endif
+                      00271                 
+                      00272                 
+                      00273 ;------------------------------------------------------------------------------
+                      00274 ; Init
+                      00275 ;------------------------------------------------------------------------------ 
+Error[118]  : Overwriting previous address contents (0000)
+Error[118]  : Overwriting previous address contents (0001)
+000000 6A0B           00276                 clrf    doerase
+Error[113]  : Symbol not previously defined (CommInit)
+Error[118]  : Overwriting previous address contents (0002)
+Error[118]  : Overwriting previous address contents (0003)
+000002 DFFE           00277                 rcall   CommInit
+                      00278                 
+                      00279                 
+                      00280 ;----------------------------------------------------------------------
+                      00281 ; Wait for computer
+                      00282 ;----------------------------------------------------------------------
+000004 6A07           00283                 clrf    cntHello
+Error[113]  : Symbol not previously defined (BLINIT)
+000006 0E00           00284 rhello  movlw   BLSTART
+Error[113]  : Symbol not previously defined (RcvIni)
+000008 DFFB           00285                 rcall   RcvIni
+00000A 08C1           00286                 sublw   HELLO
+00000C E005           00287                 bz          rhellook            
+                      00288                 ; Not hello received
+00000E 2A07           00289                 incf    cntHello
+000010 5007           00290                 movf    cntHello, w
+Error[113]  : Symbol not previously defined (HELLOTRIES)
+000012 0800           00291                 sublw   HELLOTRIES
+000014 E02A           00292                 bz              exit
+000016 D7F7           00293                 bra             rhello          
+000018                00294 rhellook
+                      00295 
+                      00296                 
+                      00297 ;----------------------------------------------------------------------
+                      00298 ; Send device id and firmware version
+                      00299 ;----------------------------------------------------------------------         
+                      00300 sendid  SendL   ( DEVICEID & 0xff )
+Error[113]  : Symbol not previously defined (DEVICEID)
+000018 0E00               M                         movlw   ( DEVICEID & 0xff )
+Error[113]  : Symbol not previously defined (Send)
+00001A DFF2               M                         rcall   Send
+                      00301                 SendL   ( ((DEVICEID&0x100)>>1) + VERMAC + VERENC + VERMAJ )
+Error[113]  : Symbol not previously defined (DEVICEID)
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00001C 0E03               M                         movlw   ( ((DEVICEID&0x100)>>1) + 0 + 0 + 3 )
+Error[113]  : Symbol not previously defined (Send)
+00001E DFF0               M                         rcall   Send
+                      00302                 SendL   ( ((DEVICEID&0x200)>>2) + (VERMIN<<4) + VERREV )
+Error[113]  : Symbol not previously defined (DEVICEID)
+000020 0E00               M                         movlw   ( ((DEVICEID&0x200)>>2) + (0<<4) + 0 )
+Error[113]  : Symbol not previously defined (Send)
+000022 DFEE               M                         rcall   Send
+                      00303                 
+                      00304                 
+                      00305 ;----------------------------------------------------------------------
+                      00306 ; Main loop
+                      00307 ;----------------------------------------------------------------------                 
+                      00308 Main    SendL   OK                              ;last command was successfull, waiting for next
+000024 0E4B               M                         movlw   'K'
+Error[113]  : Symbol not previously defined (Send)
+000026 DFEC               M                         rcall   Send
+000028 6A01           00309 mainl   clrf    crc
+                      00310                 
+                      00311 
+                      00312                 ;----------------------------------------------------------------------
+                      00313                 ; Receive address
+                      00314                 ;----------------------------------------------------------------------                 
+                      00315                 ;Upper byte
+Error[113]  : Symbol not previously defined (Receive)
+00002A DFEA           00316                 rcall   Receive                 
+Error[113]  : Symbol not previously defined (TBLPTRU)
+00002C 6E00           00317                 movwf   TBLPTRU
+                      00318                 ; High byte
+Error[113]  : Symbol not previously defined (Receive)
+00002E DFE8           00319                 rcall   Receive
+Error[113]  : Symbol not previously defined (TBLPTRH)
+000030 6E00           00320                 movwf   TBLPTRH
+                      00321                 #ifdef  BIGEE
+                      00322                         movwf   EEADRH          ;for eeprom
+                      00323                 endif           
+                      00324                 ; Low byte
+Error[113]  : Symbol not previously defined (Receive)
+000032 DFE6           00325                 rcall   Receive
+Error[113]  : Symbol not previously defined (TBLPTRL)
+000034 6E00           00326                 movwf   TBLPTRL
+                      00327                 #ifdef  EEADR
+                      00328                         movwf   EEADR           ;for eeprom
+                      00329                 endif
+                      00330 
+                      00331                                         
+                      00332                 ;----------------------------------------------------------------------
+                      00333                 ; Receive command
+                      00334                 ;----------------------------------------------------------------------                 
+Error[113]  : Symbol not previously defined (Receive)
+000036 DFE4           00335                 rcall   Receive 
+000038 6E0A           00336                 movwf   cmd     
+                      00337                 
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00338                 
+                      00339                 ;----------------------------------------------------------------------
+                      00340                 ; Receive nr of data bytes that will follow
+                      00341                 ;----------------------------------------------------------------------                 
+Error[113]  : Symbol not previously defined (Receive)
+00003A DFE2           00342                 rcall   Receive 
+00003C 6E02           00343                 movwf   dcnt    
+00003E 6E03           00344                 movwf   dcnt2   
+                      00345 
+                      00346 
+                      00347                 
+                      00348                 
+                      00349                 ;----------------------------------------------------------------------
+                      00350                 ; Receive data
+                      00351                 ;---------------------------------------------------------------------- 
+Error[113]  : Symbol not previously defined (FSR0)
+000040 EE00 F000      00352                 lfsr    FSR0, buffer    ;load buffer pointer to fsr0
+Error[113]  : Symbol not previously defined (Receive)
+000044 DFDD           00353 rcvoct  rcall   Receive
+Error[113]  : Symbol not previously defined (POSTINC0)
+000046 6E00           00354                 movwf   POSTINC0
+000048 2E02           00355                 decfsz  dcnt
+00004A D7FC           00356                 bra     rcvoct
+                      00357                                 
+                      00358                 
+                      00359                 ;----------------------------------------------------------------------
+                      00360                 ; Check checksum
+                      00361                 ;----------------------------------------------------------------------                 
+00004C 6601           00362                 tstfsz  crc                             
+00004E D032           00363                 bra     crcfail                 
+000050                00364 chksumok
+                      00365                 
+                      00366                 
+                      00367         
+                      00368 
+                      00369                                         
+                      00370                                 
+                      00371                 ;----------------------------------------------------------------------
+                      00372                 ; 0x00 goto protection
+                      00373                 ;---------------------------------------------------------------------- 
+                      00374                 ifdef   PROT_GOTO
+                      00375                         ; Only for write row command
+                      00376                         btfss   cmd, 1                  
+                      00377                         bra     protgotook              
+                      00378                         ; Check for row 0
+                      00379                         tstfsz  TBLPTRU
+                      00380                         bra             protgotook
+                      00381                         tstfsz  TBLPTRH
+                      00382                         bra             protgotook
+                      00383                         tstfsz  TBLPTRL
+                      00384                         bra             protgotook                                              
+                      00385                         ; Init buffer pointer
+                      00386                         lfsr    FSR0, buffer    ;load buffer pointer to fsr0
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00387                         ; 1st word low byte = low address byte 
+                      00388                         movlw   ((STARTADDR>>1)&0xff)
+                      00389                         movwf   POSTINC0
+                      00390                         ; 1st word high byte = goto instruction
+                      00391                         movlw   0xef
+                      00392                         movwf   POSTINC0
+                      00393                         ; 2nd word low byte = upper address byte
+                      00394                         movlw   (((STARTADDR>>1)&0xff00)>>8)
+                      00395                         movwf   POSTINC0
+                      00396                         ; 2nd word high byte = uppder address nibble + goto instruction                 
+                      00397                         movlw   (0xf0 + (((STARTADDR>>1)&0xf0000)>>16))
+                      00398                         movwf   POSTINC0
+                      00399 protgotook
+                      00400                 endif
+                      00401                 
+                      00402                 
+                      00403                 ;----------------------------------------------------------------------
+                      00404                 ; Init buffer pointer
+                      00405                 ;----------------------------------------------------------------------                 
+Error[113]  : Symbol not previously defined (FSR0)
+000050 EE00 F000      00406                 lfsr    FSR0, buffer    ;load buffer pointer to fsr0
+                      00407                 
+                      00408                 
+                      00409                 ;----------------------------------------------------------------------
+                      00410                 ; Check command
+                      00411                 ;----------------------------------------------------------------------
+                      00412                 
+                      00413                 ; Erase page, set do erase status flag
+000054 A00A           00414                 btfss   cmd, 0
+000056 D002           00415                 bra             cmdrow
+000058 680B           00416                 setf    doerase
+00005A D7E4           00417                 bra             Main
+                      00418                 ; Write row
+00005C B20A           00419 cmdrow  btfsc   cmd, 1                  
+00005E D007           00420                 bra     blprot
+                      00421                 ; Write eeprom word
+                      00422                 ifdef   EEDATA                  
+                      00423                         btfsc   cmd, 2                  
+                      00424                         bra     eeprom
+                      00425                 endif
+                      00426                 ; Write config
+000060 B60A           00427                 btfsc   cmd, 3
+000062 D01F           00428                 bra     cfg     
+                      00429                 ; Else, unknown command
+                      00430                 SendL   UCMD            
+000064 0E55               M                         movlw   'U'
+Error[113]  : Symbol not previously defined (Send)
+000066 DFCC               M                         rcall   Send
+000068 D7DF           00431                 bra     mainl
+                      00432                 
+                      00433                 
+                      00434                 
+                      00435                 
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00436                 
+                      00437                                 
+                      00438                 
+                      00439                                 
+                      00440                 ;------------------------------------------------------------------------------
+                      00441                 ; Exit, placed here so it can be branched to from all code, max +-127
+                      00442                 ;------------------------------------------------------------------------------         
+                                            
+00006A                00443 exit
+Error[113]  : Symbol not previously defined (CommExit)
+00006A DFCA           00444                 rcall   CommExit
+Error[126]  : Argument out of range (FFC7 not between FC00 and 03FF)
+00006C D3C7           00445                 bra     loadusr         
+                      00446                 
+                      00447                                                         
+                      00448                 ;----------------------------------------------------------------------
+                      00449                 ; Bootloader protection
+                      00450                 ;----------------------------------------------------------------------
+00006E 0000           00451 blprot  nop
+                      00452                 ifdef PROT_BL
+                      00453                         if PAGESIZEW == 16
+                      00454                                 #define ROTROUNDS       5
+                      00455                         endif
+                      00456                         if PAGESIZEW == 32                      ;most PIC18F
+                      00457                                 #define ROTROUNDS       6
+                      00458                         endif
+                      00459                         if PAGESIZEW == 64                      ;some PIC18F
+                      00460                                 #define ROTROUNDS       7
+                      00461                         endif
+                      00462                         if PAGESIZEW == 128
+                      00463                                 #define ROTROUNDS       8
+                      00464                         endif
+                      00465                         if PAGESIZEW == 256
+                      00466                                 #define ROTROUNDS       9
+                      00467                         endif
+                      00468                         if PAGESIZEW == 512                     ;PIC18FJ
+                      00469                                 #define ROTROUNDS       10
+                      00470                         endif
+                      00471                         ; Make a copy of address
+                      00472                         movff   TBLPTRU, ttblptru
+                      00473                         movff   TBLPTRH, ttblptrh
+                      00474                         movff   TBLPTRL, ttblptrl
+                      00475                         ; Calculate page number of received address
+                      00476                         movlw   ROTROUNDS               ;2^6=64=pagesize[bytes]
+                      00477                         #undefine       ROTROUNDS
+                      00478                         movwf   cnt1
+                      00479                         bcf             STATUS, C       ;clear carry bit
+                      00480 calcpage        rrcf    ttblptru, 1
+                      00481                         rrcf    ttblptrh, 1
+                      00482                         rrcf    ttblptrl, 1
+                      00483                         decfsz  cnt1
+                      00484                         bra             calcpage                        
+                      00485                         ; Received page high < bl start page = OK
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00486                         movlw   ((STARTADDR/(PAGESIZEW*2))>>8)
+                      00487                         subwf   ttblptrh, 0
+                      00488                         bn              blprotok
+                      00489                         ; Received page = bl start page
+                      00490                         movlw   ((STARTADDR/(PAGESIZEW*2))>>8)
+                      00491                         subwf   ttblptrh, 0
+                      00492                         bnz             chkgt   
+                      00493                         ; Received page low < bl start page low = OK            
+                      00494                         movlw   ((STARTADDR/(PAGESIZEW*2))&0xff)
+                      00495                         subwf   ttblptrl, 0
+                      00496                         bn              blprotok
+                      00497                         ; Received page high > bl end page = OK
+                      00498 chkgt           movlw   (((STARTADDR/(PAGESIZEW*2))+BLSIZEP-1)>>8)
+                      00499                         subwf   ttblptrh, 0
+                      00500                         bz              chkgt2
+                      00501                         bn              chkgt2
+                      00502                         bra             blprotok
+                      00503                         ; Received page = bl end page
+                      00504 chkgt2          movlw   (((STARTADDR/(PAGESIZEW*2))+BLSIZEP-1)>>8)
+                      00505                         subwf   ttblptrh, 0
+                      00506                         bnz             proterr 
+                      00507                         ; Received page low > bl end page low = OK              
+                      00508                         movlw   (((STARTADDR/(PAGESIZEW*2))+BLSIZEP-1)&0xff)
+                      00509                         subwf   ttblptrl, 0
+                      00510                         bz              proterr
+                      00511                         bn              proterr
+                      00512                         bra             blprotok
+                      00513                         ; Protection tripped
+                      00514 proterr         SendL   BLPROT          
+                      00515                     bra     mainl
+                      00516                 endif
+                      00517                 
+                      00518                 
+                      00519                 ;----------------------------------------------------------------------
+                      00520                 ; Erase page
+                      00521                 ;----------------------------------------------------------------------                 
+                                            
+000070                00522 blprotok
+000070 A00B           00523 erase   btfss   doerase, 0
+000072 D003           00524         bra     wrloop
+000074 0E14           00525                 movlw   ERASE_CODE              ;setup erase
+000076 D821           00526                 rcall   Write
+000078 6A0B           00527                 clrf    doerase
+                      00528                 
+                      00529                 
+                      00530                 ;----------------------------------------------------------------------
+                      00531                 ; Write row
+                      00532                 ;----------------------------------------------------------------------                 
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+00007A 0E00           00533 wrloop  movlw   ROWSIZEB
+00007C 6E08           00534                 movwf   rowcnt  
+00007E 6E09           00535                 movwf   rowcnt2 
+                      00536                 ; Load latches
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Error[113]  : Symbol not previously defined (POSTINC0)
+Error[113]  : Symbol not previously defined (TABLAT)
+000080 C000 F000      00537 wrbyte  movff   POSTINC0, TABLAT
+000084 000D           00538                 tblwt   *+
+000086 2E08           00539                 decfsz  rowcnt
+000088 D7FB           00540                 bra     wrbyte          
+                      00541                 ; Write
+00008A 000A           00542                 tblrd   *-                              ;point back into row
+00008C 0E04           00543                 movlw   WRITE_CODE              
+00008E D815           00544                 rcall   Write
+                      00545                 
+                      00546                 
+                      00547                 ;----------------------------------------------------------------------
+                      00548                 ; Verify row
+                      00549                 ;---------------------------------------------------------------------- 
+Error[113]  : Symbol not previously defined (FSR0)
+Error[113]  : Symbol not previously defined (ROWSIZEW)
+Error[126]  : Argument out of range (FFFF not between 0000 and 0FFF)
+000090 EE0F F0FF      00550                 lfsr    FSR0, (buffer+(ROWSIZEB-1))     ;load buffer pointer to fsr0
+                      00551                 ; Read
+000094 000A           00552 verbyte tblrd   *-              
+Error[113]  : Symbol not previously defined (POSTDEC0)
+000096 5000           00553                 movf    POSTDEC0, w
+                      00554                 ; Compare
+Error[113]  : Symbol not previously defined (TABLAT)
+000098 6200           00555                 cpfseq  TABLAT
+00009A D009           00556                 bra             verfail
+                      00557                 ; Loop?
+00009C 2E09           00558                 decfsz  rowcnt2
+00009E D7FA           00559                 bra     verbyte         
+                      00560                 ; Verify succesfull
+0000A0 D7C1           00561                 bra     Main
+                      00562                         
+                      00563                 
+                      00564                 ;----------------------------------------------------------------------
+                      00565                 ; Erase, write & verify eeprom word
+                      00566                 ;----------------------------------------------------------------------                 
+                      00567                 ifdef   EEADR
+                      00568                         ; Load latch
+                      00569 eeprom          movff   INDF0, EEDATA
+                      00570                         ; Write
+                      00571                         movlw   b'00000100'
+                      00572                         rcall   Write
+                      00573                         ; Verify, read byte
+                      00574                         movlw   b'00000001'
+                      00575                         bsf             EECON1, RD
+                      00576                         movf    INDF0, w
+                      00577                         ; Compare
+                      00578                         cpfseq  EEDATA
+                      00579                         bra             verfail
+                      00580                         ; Verify succesfull
+                      00581                         bra     Main
+                      00582                 endif
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00583                 
+                      00584                                 
+                      00585                 ;----------------------------------------------------------------------
+                      00586                 ; Write config byte
+                      00587                 ;----------------------------------------------------------------------                 
+                                            
+                      00588                 ; Load latch
+Error[113]  : Symbol not previously defined (INDF0)
+Error[113]  : Symbol not previously defined (TABLAT)
+0000A2 C000 F000      00589 cfg             movff   INDF0, TABLAT
+0000A6 000C           00590                 tblwt   *
+                      00591                 ; Write
+0000A8 0EC4           00592                 movlw   b'11000100'
+0000AA D807           00593                 rcall   Write
+                      00594                 ; Write finished
+0000AC D7BB           00595                 bra             Main
+                      00596                 
+                      00597                                 
+                      00598                 ;----------------------------------------------------------------------
+                      00599                 ; Verify fail
+                      00600                 ;----------------------------------------------------------------------
+                      00601 verfail SendL   VERFAIL
+0000AE 0E56               M                         movlw   'V'
+Error[113]  : Symbol not previously defined (Send)
+0000B0 DFA7               M                         rcall   Send
+0000B2 D7BA           00602                 bra     mainl
+                      00603                 
+                      00604                                 
+                      00605                 ;----------------------------------------------------------------------
+                      00606                 ; Checksum error
+                      00607                 ;----------------------------------------------------------------------
+                      00608 crcfail SendL   CHECKSUMERR
+0000B4 0E4E               M                         movlw   'N'
+Error[113]  : Symbol not previously defined (Send)
+0000B6 DFA4               M                         rcall   Send
+0000B8 D7B7           00609                 bra     mainl
+                      00610                 
+                      00611                 
+                      00612 ;------------------------------------------------------------------------------
+                      00613 ; Write()
+                      00614 ;------------------------------------------------------------------------------         
+Error[113]  : Symbol not previously defined (EECON1)
+0000BA 6E00           00615 Write   movwf   EECON1
+0000BC 0E55           00616                 movlw   0x55
+Error[113]  : Symbol not previously defined (EECON2)
+0000BE 6E00           00617                 movwf   EECON2
+0000C0 0EAA           00618                 movlw   0xAA
+Error[113]  : Symbol not previously defined (EECON2)
+0000C2 6E00           00619                 movwf   EECON2
+Error[113]  : Symbol not previously defined (WR)
+Error[113]  : Symbol not previously defined (EECON1)
+0000C4 8000           00620                 bsf     EECON1, WR
+                      00621                 ; Wait for write to finish, only needed for eeprom
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Error[113]  : Symbol not previously defined (WR)
+Error[113]  : Symbol not previously defined (EECON1)
+0000C6 B000           00622 waitwre btfsc   EECON1, WR
+0000C8 D7FE           00623                 bra     waitwre
+Error[113]  : Symbol not previously defined (WREN)
+Error[113]  : Symbol not previously defined (EECON1)
+0000CA 9000           00624                 bcf     EECON1,WREN             ;disable writes
+0000CC 0012           00625                 return          
+                      00626                 
+                      00627 
+                      00628 ;------------------------------------------------------------------------------
+                      00629 ; Functions
+                      00630 ;------------------------------------------------------------------------------ 
+                      00631                 ifdef USE_UART
+                      00632                         #include "uart.inc"
+                      00633                 endif
+                      00634 
+                      00635 
+                      00636 ;------------------------------------------------------------------------------
+                      00637 ; End of code
+                      00638 ;
+                      00639 ; After reset
+                      00640 ; Do not expect the memory to be zero,
+                      00641 ; Do not expect registers to be initialised as described in datasheet.
+                      00642 ;------------------------------------------------------------------------------                 
+                      00643                 end
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BLDELAY                           ( BLTIME / TMRBASE )
+BLPROT                            'P'
+BLSTART                           ( BLINIT / TMRBASE )
+BUFFERSIZE                        (ROWSIZEB + 1 )
+CHECKSUMERR                       'N'
+DELBASE                           ( (TMRBASE * OSCF) / (3+(4000 * 255 * 6)) )
+ERASE_CODE                        b'00010100'
+HELLO                             0xC1
+Main                              00000024
+OK                                'K'
+PAGESIZER                         (PAGESIZEW/ROWSIZEW)
+PWOK                              0xFE
+ROWSIZEB                          (ROWSIZEW*2)
+STARTADDR                         ( MAX_FLASH - BLPLP * PAGESIZER * ROWSIZEW * 2 )
+SendL                             
+TMRBASE                           10
+UBRG                              ( (((OSCF / BAUDRATE) / 8) - 1) / 2 )
+UCMD                              'U'
+VERENC                            0
+VERFAIL                           'V'
+VERMAC                            0
+VERMAJ                            3
+VERMIN                            0
+VERREV                            0
+WRITE_CODE                        b'00000100'
+Write                             000000BA
+__18F26K20                        00000001
+blprot                            0000006E
+blprotok                          00000070
+blstart                           00000000
+buffer                            00000000
+cfg                               000000A2
+chksumok                          00000050
+cmd                               0000000A
+cmdrow                            0000005C
+cnt1                              00000004
+cnt2                              00000005
+cnt3                              00000006
+cntHello                          00000007
+crc                               00000001
+crcfail                           000000B4
+dcnt                              00000002
+dcnt2                             00000003
+doerase                           0000000B
+erase                             00000070
+exit                              0000006A
+loadusr                           FFFFFFFC
+mainl                             00000028
+rcvoct                            00000044
+rhello                            00000006
+rhellook                          00000018
+rowcnt                            00000008
+rowcnt2                           00000009
+MPASM  5.43                    DS30LOADER.ASM   2-25-2012  21:18:32         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+sendid                            00000018
+ttblptrh                          0000000D
+ttblptrl                          0000000E
+ttblptru                          0000000C
+verbyte                           00000094
+verfail                           000000AE
+waitwre                           000000C6
+wrbyte                            00000080
+wrloop                            0000007A
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00C0 : XXXXXXXXXXXXXX-- ---------------- ---------------- ----------------
+FFC0 : ---------------- ---------------- ---------------- ------------XXXX
+
+All other memory blocks unused.
+
+Program Memory Bytes Used:   210
+Program Memory Bytes Free: 65326
+
+
+Errors   :    86
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

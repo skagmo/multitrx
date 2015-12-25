@@ -1,0 +1,10 @@
+Version 1.3 (25.12.2015):
+- Decoding: Now driven by interrupts to make timing accuracy unaffected by high CPU load
+- Decoding: Ring buffer for each sample containing state, length and RSSI
+- Decoding: Supports RAW mode with RSSI treshold
+- Decoding: Supports NEXA self-learning dimming packet (used by door and PIR sensor)
+- Decoding: Supports NEXA code wheel packet
+- Lines terminated with CRLF rather than LF
+- Automatically loads default settings on configuration version mismatch (after upgrading)
+- Default baud rate changed to 115200
+

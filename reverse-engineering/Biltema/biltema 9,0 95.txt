@@ -1,0 +1,78 @@
+Ch1 9,0*C 95%
+
+cbababbaababbbbbaaaaaacbababbaababbbbbaaaaaacbababbaababbbbbaaaaaacbababbaababbbbbaaaaaacbababbaababbbbbaaaaaac
+
+
+cbababbaababbbbbaaaaaa
+cbababbaababbbbbaaaaaa
+cbababbaababbbbbaaaaaa
+cbababbaababbbbbaaaaaa
+cbababbaababbbbbaaaaaa
+c
+
+ 010100110100000111111
+
+9=1001 5=0101
+
+Ch1 16,9 95
+
+caabbabaaabbabbbaaaaaa
+
+ 110010111001000111111
+
+1=0001 6=0110 9=1001
+
+95 = 1011111 
+
+ch1 19,9 95
+
+caabbabaabbaabbbaaaaaa
+
+110010110011000111111
+
+
+21,7 92
+
+cabbbabaabaaabbbabbaaa
+
+100010110111000100111
+
+
+21,8  90
+
+cbabbabaabaaabbbababaa
+010010110111000101011
+
+a = lang, b = kort
+
+ch1 21,1 47
+
+caababbaabaaabbabaaaab
+110100110111001011110
+|  T   |     | H   |
+
+25,5 47
+
+caaaabbbbbabbababaaaab
+
+ 111100000100101011110
+
+ch2 24,5 45
+
+cabbaabbbabbbabababaab
+ 100110001000101010110
+ 011001110111010101001
+
+
+
+
+-----
+
+110010110011000111111
+100010110111000100111
+010010110111000101011
+110100110111001011110
+111100000100101011110
+100110001000101010110   ch2
+
+11001011

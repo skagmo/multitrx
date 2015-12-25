@@ -1,0 +1,867 @@
+[p LITE_MODE AUTOSTATIC LFSROK EMI_WORD ]
+[d version 1.1 ]
+[d edition pro ]
+[d chip 18F26K20 ]
+[s S21 . 1 `uc 1 Cap1OVF 1 0 :1:0 
+`uc 1 Cap2OVF 1 0 :1:1 
+]
+[u S24 capstatus 1 `S21 1 . 1 0 `uc 1 . 1 0 :8:0 
+]
+"967 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\include\pic18f26k20.h
+[s S54 . 14 `uc 1 nr_settings 1 0 `uc 1 bmc_en_rx 1 1 `uc 1 bmc_sends 1 2 `uc 1 bmc_en_hex 1 3 `uc 1 bmc_repeat 1 4 `uc 1 bmc_hops 1 5 `uc 1 doro_en_rx 1 6 `uc 1 gao_en_rx 1 7 `uc 1 gao_sends 1 8 `uc 1 esic_en_rx 1 9 `uc 1 nexa_en_rx 1 10 `uc 1 nexa_sends 1 11 `uc 1 waveman_sends 1 12 `uc 1 kangthai_sends 1 13 ]
+"51 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v F2796 `(v  1 t 0 ]
+[s S347 . 1 `Vuc 1 RD 1 0 :1:0 
+`Vuc 1 WR 1 0 :1:1 
+`Vuc 1 WREN 1 0 :1:2 
+`Vuc 1 WRERR 1 0 :1:3 
+`Vuc 1 FREE 1 0 :1:4 
+`Vuc 1 . 1 0 :1:5 
+`Vuc 1 CFGS 1 0 :1:6 
+`Vuc 1 EEPGD 1 0 :1:7 
+]
+[u S356 . 1 `S347 1 . 1 0 ]
+[s S364 . 1 `Vuc 1 RD 1 0 :1:0 
+`Vuc 1 WR 1 0 :1:1 
+`Vuc 1 WREN 1 0 :1:2 
+`Vuc 1 WRERR 1 0 :1:3 
+`Vuc 1 FREE 1 0 :1:4 
+`Vuc 1 . 1 0 :1:5 
+`Vuc 1 CFGS 1 0 :1:6 
+`Vuc 1 EEPGD 1 0 :1:7 
+]
+[u S373 . 1 `S347 1 . 1 0 ]
+"1569 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\include\pic18.h
+[v __delay `(v  1 e 0 0 ]
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\aldiv.c
+[v ___aldiv `(l  1 e 4 0 ]
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\almod.c
+[v ___almod `(l  1 e 4 0 ]
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\aslmul.c
+[v ___aslmul `(ul  1 e 4 0 ]
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\awdiv.c
+[v ___awdiv `(i  1 e 2 0 ]
+"6 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\eeread.c
+[v _eeprom_read `(uc  1 e 1 0 ]
+"7 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\eewrite.c
+[v _eeprom_write `(v  1 e 0 0 ]
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lldiv.c
+[v ___lldiv `(ul  1 e 4 0 ]
+"3 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lmul.c
+[v ___lmul `(ul  1 e 4 0 ]
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lwdiv.c
+[v ___lwdiv `(ui  1 e 2 0 ]
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lwmod.c
+[v ___lwmod `(ui  1 e 2 0 ]
+"3 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\wmul.c
+[v ___wmul `(ui  1 e 2 0 ]
+"26 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _loadDefaults `(v  1 e 0 0 ]
+"43
+[v _saveEeprom `(v  1 e 0 0 ]
+"47
+[v _loadEeprom `(v  1 e 0 0 ]
+"51
+[v _intRoutineHigh `I(v  1 e 0 0 ]
+"55
+[v _delayms `(v  1 e 0 0 ]
+"59
+[v _waitTimer `(v  1 e 0 0 ]
+"69
+[v _asciiToHex `(uc  1 e 1 0 ]
+"75
+[v _reverse `(uc  1 e 1 0 ]
+"84
+[v _startTransmit `(v  1 e 0 0 ]
+"91
+[v _stopTransmit `(v  1 e 0 0 ]
+"100
+[v _startupBlinkLed `(v  1 e 0 0 ]
+"108
+[v _blinkRxLed `(v  1 e 0 0 ]
+"114
+[v _readAd `(ui  1 e 2 0 ]
+"135
+[v _parseSettings `(v  1 e 0 0 ]
+"252
+[v _parseCmd `(v  1 e 0 0 ]
+"292
+[v _main `(v  1 e 0 0 ]
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v _bmcConvertHex `(v  1 e 0 0 ]
+"12
+[v _bmcTxByte `(v  1 e 0 0 ]
+"29
+[v _bmcTx `(v  1 e 0 0 ]
+"51
+[v _bmcPrint `(v  1 e 0 0 ]
+"62
+[v _bmcRepeat `(v  1 e 0 0 ]
+"71
+[v _bmcDecode `(v  1 e 0 0 ]
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\doro.h
+[v _doroPrint `(v  1 e 0 0 ]
+"14
+[v _doroDecode `(v  1 e 0 0 ]
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\esic.h
+[v _esicPrint `(v  1 e 0 0 ]
+"64
+[v _esicDecode `(v  1 e 0 0 ]
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\gaomod.h
+[v _gaoTx `(v  1 e 0 0 ]
+"44
+[v _gaoPrint `(v  1 e 0 0 ]
+"60
+[v _gaoDecode `(v  1 e 0 0 ]
+"13 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\hardware_config_11.h
+[v _init `(i  1 e 2 0 ]
+"36
+[v _dataPinOut `(i  1 e 2 0 ]
+"40
+[v _dataPinIn `(i  1 e 2 0 ]
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\kangthai.h
+[v _kangthaiTx `(v  1 e 0 0 ]
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\nexa.h
+[v _nexaTx `(v  1 e 0 0 ]
+"70
+[v _nexaPrint `(v  1 e 0 0 ]
+"91
+[v _nexaDecode `(v  1 e 0 0 ]
+"8 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sInit `(v  1 e 0 0 ]
+"19
+[v _sInWaiting `(uc  1 e 1 0 ]
+"28
+[v _sGet `(uc  1 e 1 0 ]
+"37
+[v _sPut `(v  1 e 0 0 ]
+"50
+[v _sPuts `(v  1 e 0 0 ]
+"54
+[v _sPutint `(v  1 e 0 0 ]
+"77
+[v _sPutonehex `(v  1 e 0 0 ]
+"82
+[v _sPuthex `(v  1 e 0 0 ]
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\waveman.h
+[v _wavemanTx `(v  1 e 0 0 ]
+"1032 /hitech/products/compilers/pic18/pro/9.66/dist/linux/include/pic18f23k20.h
+[v _EEIF `Vb  1 e 0 @32012 ]
+"1084
+[v _EECON1 `Vuc  1 e 1 @4006 ]
+"1088
+[v _WREN `Vb  1 e 0 @32050 ]
+"1104
+[v _EECON1bits `S356  1 e 1 @4006 ]
+"1107
+[v _EECON2 `Vuc  1 e 1 @4007 ]
+"1111
+[v _EEDATA `Vuc  1 e 1 @4008 ]
+"1115
+[v _EEADR `Vuc  1 e 1 @4009 ]
+"1956
+[v _CARRY `Vb  1 e 0 @32448 ]
+"68 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\include\peripheral/capture.h
+[v _CapStatus `S24  1 e 1 @328 ]
+"429 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\include\pic18f26k20.h
+[v _ANSEL `Vuc  1 e 1 @3966 ]
+"447
+[v _ANSELH `Vuc  1 e 1 @3967 ]
+"553
+[v _PORTB `Vuc  1 e 1 @3969 ]
+"761
+[v _LATB2 `Vb  1 e 0 @31826 ]
+"762
+[v _LATB3 `Vb  1 e 0 @31827 ]
+"787
+[v _LATC4 `Vb  1 e 0 @31836 ]
+"788
+[v _LATC5 `Vb  1 e 0 @31837 ]
+"805
+[v _TRISA `Vuc  1 e 1 @3986 ]
+"848
+[v _TRISB `Vuc  1 e 1 @3987 ]
+"891
+[v _TRISC `Vuc  1 e 1 @3988 ]
+"961
+[v _PIE1 `Vuc  1 e 1 @3997 ]
+"967
+[v _TXIE `Vb  1 e 0 @31980 ]
+"985
+[v _TMR1IF `Vb  1 e 0 @31984 ]
+"989
+[v _TXIF `Vb  1 e 0 @31988 ]
+"990
+[v _RCIF `Vb  1 e 0 @31989 ]
+"1059
+[v _TMR3IF `Vb  1 e 0 @32009 ]
+"1181
+[v _RCSTA `Vuc  1 e 1 @4011 ]
+"1184
+[v _OERR `Vb  1 e 0 @32089 ]
+"1187
+[v _CREN `Vb  1 e 0 @32092 ]
+"1210
+[v _TXSTA `Vuc  1 e 1 @4012 ]
+"1234
+[v _TXREG `Vuc  1 e 1 @4013 ]
+"1238
+[v _RCREG `Vuc  1 e 1 @4014 ]
+"1242
+[v _SPBRG `Vuc  1 e 1 @4015 ]
+"1252
+[v _TMR3ON `Vb  1 e 0 @32136 ]
+"1282
+[v _TMR3L `Vuc  1 e 1 @4018 ]
+"1286
+[v _TMR3H `Vuc  1 e 1 @4019 ]
+"1389
+[v _BAUDCON `Vuc  1 e 1 @4024 ]
+"1513
+[v _ADCON2 `Vuc  1 e 1 @4032 ]
+"1540
+[v _ADCON1 `Vuc  1 e 1 @4033 ]
+"1557
+[v _ADCON0 `Vuc  1 e 1 @4034 ]
+"1607
+[v _ADRESL `Vuc  1 e 1 @4035 ]
+"1611
+[v _ADRESH `Vuc  1 e 1 @4036 ]
+"1782
+[v _T1CON `Vuc  1 e 1 @4045 ]
+"1784
+[v _TMR1ON `Vb  1 e 0 @32360 ]
+"1814
+[v _TMR1L `Vuc  1 e 1 @4046 ]
+"1818
+[v _TMR1H `Vuc  1 e 1 @4047 ]
+"1860
+[v _WDTCON `Vuc  1 e 1 @4049 ]
+"1985
+[v _TMR0L `Vuc  1 e 1 @4054 ]
+"2204
+[v _INTCON `Vuc  1 e 1 @4082 ]
+"2208
+[v _TMR0IF `Vb  1 e 0 @32658 ]
+"2215
+[v _GIE `Vb  1 e 0 @32663 ]
+"83 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v F2849 `uc  1 s 1 @301 ]
+"84
+[v F2850 `uc  1 s 1 @314 ]
+"85
+[v F2851 `uc  1 s 1 @320 ]
+"86
+[v F2852 `[33]uc  1 s 33 @256 ]
+"87
+[v F2853 `uc  1 s 1 @292 ]
+"88
+[v F2854 `uc  1 s 1 @324 ]
+"24 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\doro.h
+[v F2928 `uc  1 s 1 @291 ]
+"25
+[v F2929 `ui  1 s 2 @317 ]
+"26
+[v F2930 `uc  1 s 1 @312 ]
+"75 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\esic.h
+[v F2916 `uc  1 s 1 @290 ]
+"76
+[v F2917 `ul  1 s 4 @302 ]
+"77
+[v F2918 `uc  1 s 1 @319 ]
+"78
+[v F2919 `uc  1 s 1 @326 ]
+"79
+[v F2920 `uc  1 s 1 @321 ]
+"68 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\gaomod.h
+[v F2873 `uc  1 s 1 @313 ]
+"69
+[v F2874 `uc  1 s 1 @293 ]
+"70
+[v F2875 `uc  1 s 1 @289 ]
+"71
+[v F2876 `ul  1 s 4 @294 ]
+"72
+[v F2877 `uc  1 s 1 @323 ]
+"73
+[v F2878 `uc  1 s 1 @322 ]
+"74
+[v F2879 `uc  1 s 1 @325 ]
+"99 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\nexa.h
+[v F2896 `uc  1 s 1 @310 ]
+"100
+[v F2897 `uc  1 s 1 @298 ]
+"101
+[v F2898 `uc  1 s 1 @311 ]
+"102
+[v F2899 `ul  1 s 4 @306 ]
+"103
+[v F2900 `uc  1 s 1 @327 ]
+"4 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _rxbuffer `V[128]uc  1 e 128 @128 ]
+"5
+[v _txbuffer `V[128]uc  1 e 128 @0 ]
+"6
+[v _txip `Vuc  1 e 1 @299 ]
+[v _txop `Vuc  1 e 1 @300 ]
+[v _rxip `Vuc  1 e 1 @315 ]
+[v _rxop `Vuc  1 e 1 @316 ]
+"292 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _main `(v  1 e 0 0 ]
+{
+"302
+[v _rf_state `uc  1 a 1 0 ]
+"309
+[v _temp_c `uc  1 a 1 1 ]
+"303
+[v _prev_rf_state `uc  1 a 1 2 ]
+"308
+[v _line_len `uc  1 a 1 3 ]
+"304
+[v _rf_pulse_length `uc  1 a 1 4 ]
+"311
+[v _settings `S54  1 a 14 5 ]
+"307
+[v _line `[32]uc  1 a 32 19 ]
+"350
+} 51
+"60 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\gaomod.h
+[v _gaoDecode `(v  1 e 0 0 ]
+{
+[v _rf_state `uc  1 p 1 0 ]
+[v _rf_pulse_length `uc  1 p 1 1 ]
+"136
+} 0
+"91 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\nexa.h
+[v _nexaDecode `(v  1 e 0 0 ]
+{
+[v _rf_state `uc  1 p 1 0 ]
+[v _rf_pulse_length `uc  1 p 1 1 ]
+"149
+} 0
+"14 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\doro.h
+[v _doroDecode `(v  1 e 0 0 ]
+{
+[v _rf_state `uc  1 p 1 0 ]
+[v _rf_pulse_length `uc  1 p 1 1 ]
+"56
+} 0
+"64 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\esic.h
+[v _esicDecode `(v  1 e 0 0 ]
+{
+[v _rf_pulse_length `uc  1 p 1 0 ]
+"115
+} 0
+"252 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _parseCmd `(v  1 e 0 0 ]
+{
+[v _linep `*.buc  1 p 2 0 ]
+[v _line_len `uc  1 p 1 2 ]
+[v _settingsp `*.bS54  1 p 2 3 ]
+"290
+} 0
+"19 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sInWaiting `(uc  1 e 1 0 ]
+{
+"26
+} 0
+"71 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v _bmcDecode `(v  1 e 0 0 ]
+{
+"119
+[v _checksum `uc  1 a 1 0 ]
+"120
+[v _j `uc  1 a 1 1 ]
+"71
+[v _rf_pulse_length `uc  1 p 1 0 ]
+[v _settingsp `*.bS54  1 p 2 1 ]
+"132
+} 2
+"28 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sGet `(uc  1 e 1 0 ]
+{
+"29
+[v _c `uc  1 a 1 0 ]
+"35
+} 1
+"100 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _startupBlinkLed `(v  1 e 0 0 ]
+{
+"101
+[v _j `uc  1 a 1 0 ]
+"106
+} 1
+"8 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sInit `(v  1 e 0 0 ]
+{
+"9
+[v _spbrg_calc `ul  1 a 4 0 ]
+"8
+[v _baud `ul  1 p 4 0 ]
+"17
+} 4
+"13 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\hardware_config_11.h
+[v _init `(i  1 e 2 0 ]
+{
+"34
+} 0
+"62 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v _bmcRepeat `(v  1 e 0 0 ]
+{
+"63
+[v _payload_size `uc  1 a 1 0 ]
+"64
+[v _hops `uc  1 a 1 1 ]
+"62
+[v _datap `*.buc  1 p 2 0 ]
+[v _settingsp `*.bS54  1 p 2 2 ]
+"69
+} 2
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lldiv.c
+[v ___lldiv `(ul  1 e 4 0 ]
+{
+"7
+[v _counter `uc  1 a 1 0 ]
+"6
+[v _quotient `ul  1 a 4 1 ]
+"5
+[v _dividend `ul  1 p 4 0 ]
+[v _divisor `ul  1 p 4 4 ]
+"26
+} 5
+"70 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\nexa.h
+[v _nexaPrint `(v  1 e 0 0 ]
+{
+"71
+[v _number `ul  1 a 4 0 ]
+"73
+[v _j `uc  1 a 1 4 ]
+"70
+[v _data `ul  1 p 4 0 ]
+"89
+} 5
+"44 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\gaomod.h
+[v _gaoPrint `(v  1 e 0 0 ]
+{
+"45
+[v _number `ul  1 a 4 0 ]
+"47
+[v _j `uc  1 a 1 4 ]
+"44
+[v _data `ul  1 p 4 0 ]
+"58
+} 5
+"51 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v _bmcPrint `(v  1 e 0 0 ]
+{
+"52
+[v _payload_size `uc  1 a 1 0 ]
+"54
+[v _j `uc  1 a 1 1 ]
+"51
+[v _datap `*.buc  1 p 2 0 ]
+[v _in_hex `uc  1 p 1 2 ]
+"60
+} 2
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\kangthai.h
+[v _kangthaiTx `(v  1 e 0 0 ]
+{
+"5
+[v _temp `ul  1 a 4 0 ]
+"4
+[v _data `ul  1 a 4 4 ]
+"7
+[v _j `uc  1 a 1 8 ]
+"11
+[v _j `uc  1 a 1 9 ]
+"20
+[v _resend `uc  1 a 1 10 ]
+"26
+[v _bitnr `uc  1 a 1 11 ]
+"1
+[v _s `*.buc  1 p 2 0 ]
+[v _resends `uc  1 p 1 2 ]
+"42
+} 12
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v _bmcConvertHex `(v  1 e 0 0 ]
+{
+"2
+[v _temp `uc  1 a 1 0 ]
+"3
+[v _k `uc  1 a 1 1 ]
+"1
+[v _datap `*.buc  1 p 2 0 ]
+[v _data_len `*.buc  1 p 2 2 ]
+"9
+} 2
+"135 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _parseSettings `(v  1 e 0 0 ]
+{
+[v _linep `*.buc  1 p 2 0 ]
+[v _line_len `uc  1 p 1 2 ]
+[v _settingsp `*.bS54  1 p 2 3 ]
+"250
+} 0
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\gaomod.h
+[v _gaoTx `(v  1 e 0 0 ]
+{
+"4
+[v _temp `ul  1 a 4 0 ]
+"5
+[v _data `ul  1 a 4 4 ]
+"7
+[v _j `uc  1 a 1 8 ]
+"15
+[v _resend `uc  1 a 1 9 ]
+"17
+[v _preamble `uc  1 a 1 10 ]
+"23
+[v _bitnr `uc  1 a 1 11 ]
+"1
+[v _s `*.buc  1 p 2 0 ]
+[v _resends `uc  1 p 1 2 ]
+"42
+} 12
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\waveman.h
+[v _wavemanTx `(v  1 e 0 0 ]
+{
+"10
+[v _bitnr `uc  1 a 1 0 ]
+"8
+[v _data `ui  1 a 2 1 ]
+"9
+[v _temp `ui  1 a 2 3 ]
+"23
+[v _resend `uc  1 a 1 5 ]
+"1
+[v _s `*.buc  1 p 2 0 ]
+[v _resends `uc  1 p 1 2 ]
+"51
+} 6
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\nexa.h
+[v _nexaTx `(v  1 e 0 0 ]
+{
+"8
+[v _dimming `uc  1 a 1 0 ]
+"10
+[v _bitnr `uc  1 a 1 1 ]
+"9
+[v _temp `ul  1 a 4 2 ]
+"7
+[v _data `ul  1 a 4 6 ]
+"12
+[v _j `uc  1 a 1 10 ]
+"25
+[v _resend `uc  1 a 1 11 ]
+"1
+[v _s `*.buc  1 p 2 0 ]
+[v _resends `uc  1 p 1 2 ]
+"68
+} 12
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\doro.h
+[v _doroPrint `(v  1 e 0 0 ]
+{
+"3
+[v _number `ui  1 a 2 0 ]
+"4
+[v _j `uc  1 a 1 2 ]
+"1
+[v _data `ui  1 p 2 0 ]
+"12
+} 3
+"1 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\esic.h
+[v _esicPrint `(v  1 e 0 0 ]
+{
+"5
+[v _constantcheck `uc  1 a 1 0 ]
+"9
+[v _packetcount `uc  1 a 1 1 ]
+"4
+[v _channel `uc  1 a 1 2 ]
+"3
+[v _house `uc  1 a 1 3 ]
+"6
+[v _humidity `uc  1 a 1 4 ]
+"8
+[v _lowbatt `uc  1 a 1 5 ]
+"10
+[v _parity `uc  1 a 1 6 ]
+"11
+[v _paritycalc `uc  1 a 1 7 ]
+"7
+[v _temperature `l  1 a 4 8 ]
+"2
+[v _temp `ul  1 a 4 12 ]
+"16
+[v _counter `uc  1 a 1 16 ]
+"1
+[v _data `ul  1 p 4 0 ]
+"62
+} 17
+"75 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _reverse `(uc  1 e 1 0 ]
+{
+"76
+[v _output `uc  1 a 1 0 ]
+"75
+[v _input `uc  1 p 1 0 ]
+"82
+} 1
+"29 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v _bmcTx `(v  1 e 0 0 ]
+{
+"33
+[v _temp `uc  1 a 1 0 ]
+"34
+[v _checksum `uc  1 a 1 1 ]
+"35
+[v _k `uc  1 a 1 2 ]
+"38
+[v _j `uc  1 a 1 3 ]
+"39
+[v _k `uc  1 a 1 4 ]
+"41
+[v _k `uc  1 a 1 5 ]
+"29
+[v _datap `*.buc  1 p 2 0 ]
+[v _data_len `uc  1 p 1 2 ]
+[v _hops `uc  1 p 1 3 ]
+[v _sends `uc  1 p 1 4 ]
+"49
+} 6
+"3 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\wmul.c
+[v ___wmul `(ui  1 e 2 0 ]
+{
+"4
+[v _product `ui  1 a 2 0 ]
+"3
+[v _multiplier `ui  1 p 2 0 ]
+[v _multiplicand `ui  1 p 2 2 ]
+"13
+} 2
+"69 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _asciiToHex `(uc  1 e 1 0 ]
+{
+[v _input `uc  1 p 1 0 ]
+"73
+} 0
+"114
+[v _readAd `(ui  1 e 2 0 ]
+{
+"115
+[v _value `uc  1 a 1 0 ]
+"116
+[v _temp `i  1 a 2 1 ]
+"117
+[v _j `i  1 a 2 3 ]
+"125
+} 5
+"108
+[v _blinkRxLed `(v  1 e 0 0 ]
+{
+"112
+} 0
+"43
+[v _saveEeprom `(v  1 e 0 0 ]
+{
+"44
+[v _j `uc  1 a 1 0 ]
+"43
+[v _settingsp `*.buc  1 p 2 0 ]
+"45
+} 1
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\aldiv.c
+[v ___aldiv `(l  1 e 4 0 ]
+{
+"7
+[v _counter `uc  1 a 1 0 ]
+[v _sign `uc  1 a 1 1 ]
+"6
+[v _quotient `l  1 a 4 2 ]
+"5
+[v _dividend `l  1 p 4 0 ]
+[v _divisor `l  1 p 4 4 ]
+"37
+} 6
+"47 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _loadEeprom `(v  1 e 0 0 ]
+{
+"48
+[v _j `uc  1 a 1 0 ]
+"47
+[v _settingsp `*.buc  1 p 2 0 ]
+"49
+} 1
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\aslmul.c
+[v ___aslmul `(ul  1 e 4 0 ]
+{
+[v _mp `*.bul  1 p 2 0 ]
+[v _multiplicand `ul  1 p 4 2 ]
+"7
+} 0
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\almod.c
+[v ___almod `(l  1 e 4 0 ]
+{
+"6
+[v _sign `uc  1 a 1 0 ]
+[v _counter `uc  1 a 1 1 ]
+"5
+[v _dividend `l  1 p 4 0 ]
+[v _divisor `l  1 p 4 4 ]
+"30
+} 2
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\awdiv.c
+[v ___awdiv `(i  1 e 2 0 ]
+{
+"7
+[v _counter `uc  1 a 1 0 ]
+[v _sign `uc  1 a 1 1 ]
+"6
+[v _quotient `i  1 a 2 2 ]
+"5
+[v _dividend `i  1 p 2 0 ]
+[v _divisor `i  1 p 2 2 ]
+"37
+} 4
+"54 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sPutint `(v  1 e 0 0 ]
+{
+"56
+[v _start `uc  1 a 1 0 ]
+"57
+[v _stop `uc  1 a 1 1 ]
+"64
+[v _temp `ui  1 a 2 2 ]
+"55
+[v _buffer `[7]uc  1 a 7 4 ]
+"69
+[v _j `c  1 a 1 11 ]
+"54
+[v _input `ui  1 p 2 0 ]
+"75
+} 12
+"82
+[v _sPuthex `(v  1 e 0 0 ]
+{
+[v _input `uc  1 p 1 0 ]
+"85
+} 0
+"26 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _loadDefaults `(v  1 e 0 0 ]
+{
+[v _settingsp `*.bS54  1 p 2 0 ]
+"41
+} 0
+"6 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\eeread.c
+[v _eeprom_read `(uc  1 e 1 0 ]
+{
+[v _addr `ui  1 p 2 0 ]
+"9
+} 0
+"77 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sPutonehex `(v  1 e 0 0 ]
+{
+[v _data `uc  1 p 1 0 ]
+"80
+} 0
+"84 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _startTransmit `(v  1 e 0 0 ]
+{
+"89
+} 0
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lwdiv.c
+[v ___lwdiv `(ui  1 e 2 0 ]
+{
+"7
+[v _counter `uc  1 a 1 0 ]
+"6
+[v _quotient `ui  1 a 2 1 ]
+"5
+[v _dividend `ui  1 p 2 0 ]
+[v _divisor `ui  1 p 2 2 ]
+"26
+} 3
+"5 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lwmod.c
+[v ___lwmod `(ui  1 e 2 0 ]
+{
+"6
+[v _counter `uc  1 a 1 0 ]
+"5
+[v _dividend `ui  1 p 2 0 ]
+[v _divisor `ui  1 p 2 2 ]
+"21
+} 1
+"7 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\eewrite.c
+[v _eeprom_write `(v  1 e 0 0 ]
+{
+[v _addr `ui  1 p 2 0 ]
+[v _value `uc  1 p 1 2 ]
+"9
+} 0
+"3 C:\Program Files (x86)\HI-TECH Software\PICC-18\PRO\9.66\sources\lmul.c
+[v ___lmul `(ul  1 e 4 0 ]
+{
+"4
+[v _product `ul  1 a 4 0 ]
+"3
+[v _multiplier `ul  1 p 4 0 ]
+[v _multiplicand `ul  1 p 4 4 ]
+"13
+} 4
+"91 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _stopTransmit `(v  1 e 0 0 ]
+{
+"98
+} 0
+"12 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\bmc.h
+[v _bmcTxByte `(v  1 e 0 0 ]
+{
+"14
+[v _j `uc  1 a 1 0 ]
+"12
+[v _data `uc  1 p 1 0 ]
+"27
+} 1
+"59 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _waitTimer `(v  1 e 0 0 ]
+{
+[v _value `ui  1 p 2 0 ]
+"67
+} 0
+"36 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\hardware_config_11.h
+[v _dataPinOut `(i  1 e 2 0 ]
+{
+"38
+} 0
+"55 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _delayms `(v  1 e 0 0 ]
+{
+"56
+[v _counter `i  1 a 2 0 ]
+"55
+[v _ms `i  1 p 2 0 ]
+"57
+} 2
+"50 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sPuts `(v  1 e 0 0 ]
+{
+[v _s `*.mDCuc  1 p 2 0 ]
+"52
+} 0
+"40 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\hardware_config_11.h
+[v _dataPinIn `(i  1 e 2 0 ]
+{
+"42
+} 0
+"37 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\uartring.c
+[v _sPut `(v  1 e 0 0 ]
+{
+[v _c `uc  1 p 1 0 ]
+"48
+} 0
+"51 D:\Hobby\Prosjekter\MultiTRX\Firmware\FW1.2\batchpcb26k20.c
+[v _intRoutineHigh `I(v  1 e 0 0 ]
+{
+"53
+} 0

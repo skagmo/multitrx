@@ -1,0 +1,27 @@
+$CiiiKkp 
+
+Stor remote:
+$GC0D050
+$GC0D1A0
+$GC0D2F0
+$GC0D370
+$GC0D420
+$GC0D5D0
+$GC0D680
+$GC0D7E0
+
+Liten:
+$GD29C40
+$GD29DB0
+$GD29EE0
+$GD29FA0
+
+$NiiiiiiigPc(l)
+$N0A81762020A
+$N0A817620200
+$N0A81762011
+
+Device 0-15: Nexa kanal 0-15
+Device 20-27: CO-tech kanal 0-7
+
+$GD29DB2

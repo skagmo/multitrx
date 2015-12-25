@@ -1,0 +1,9 @@
+HT12E encoder:
+A0-A7 = DIP 1-8
+
+D00F (Delay)
+D007 (Instant)
+D003 (Tamper)
+
+H52PBZT
+PCHA52P2A0A

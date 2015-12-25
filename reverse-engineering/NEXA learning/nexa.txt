@@ -1,0 +1,49 @@
+K1 på:
+c ababababbaabbaabbaababababababbaabbababaabbabaabbaab ab ba abab abab a
+c 1 1 1 1 0 1 0 1 0 1 1 1 1 1 1 0 1 0 0 0 1 0 0 1 0 1  1  0  1 1  1 1 a
+c 11110101011111101000100101 1        0   11       11 a
+  ID                         Gruppe 1 Av  Gruppe 1 Knapp 1
+
+c 11110101 01111110 10001001 01  1   0   1111 a
+
+c ID1      ID2      ID3      ID4 G  P   C
+
+c 1111 0101 0111 1110 1000 1001 01 1 0 1111 a
+  F    5    7    E    8    9    1  
+
+Hvis gruppe er null: P invers bestemmer av/på
+
+K1 av:
+c ababababbaabbaabbaababababababbaabbababaabbabaabbaab ab ab abab abab a
+c 1 1 1 1 0 1 0 1 0 1 1 1 1 1 1 0 1 0 0 0 1 0 0 1 0 1  1  1  1 1  1 1
+c 11110101011111101000100101 1 1 11 11
+
+c 0000 1010 1000 0001 0111 0110 10 0 0 0000
+  0    A    8    1    7    6    2  0 0 0
+
+G1 på:
+c ababababbaabbaabbaababababababbaabbababaabbabaabbaabbaab
+c ababababbaabbaabbaababababababbaabbababaabbabaabbaab ba ba abab abab a
+c 1 1 1 1 0 1 0 1 0 1 1 1 1 1 1 0 1 0 0 0 1 0 0 1 0 1  0  0  1 1  1 1  
+
+G1 av:
+c ababababbaabbaabbaababababababbaabbababaabbabaabbaab ba ab abab abab a
+c 1 1 1 1 0 1 0 1 0 1 1 1 1 1 1 0 1 0 0 0 1 0 0 1 0 1  0  1  1 1  1 1
+
+$TNiiiiiiigPc
+
+$TNiiiiiiigPcd  P == 2 gir dimming
+
+ID på min fjernkontroll: 0A81762
+
+$TN0A817620202
+
+$TN0A81762000
+
+$N0A81762001
+$N0A81762000
+
+$N0A817620001
+$N0A817620000
+
+$N0A817620301

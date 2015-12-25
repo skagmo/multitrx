@@ -1,0 +1,9 @@
+X10
+Z-wave
+EIB
+Insteon
+KNX-RF
+homematic
+elko wireless
+gira funkbuss
+xcomfort

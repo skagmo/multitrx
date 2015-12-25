@@ -1,0 +1,23 @@
+Magnetbryter mot MTRX med gammel firmware:
+$N1EA7662090
+$NEA766920E1
+$N0A817620E0
+
+- Er det ingen spesial-dimmebit? Test!
+- Hva er minste og største dimmenivå? Trunkere f.eks. på 'E' eller '1'
+- Sjekk om 0b1110 og 0b1111 gir samme dimmenivå siden magnetbryter sender dette
+
+Fra plott: (kort-lang = 0)
+0001 1110 1010 0111 0110 0110 1001 1001 1110 S
+0001 1110 1010 0111 0110 1001 1000 0110 S
+
+07A9D9A
+0 GROUP_EN
+9 CH
+1 POWER
+E DIM
+
+1ea776
+1111 er min, 0001 er max
+0000-1110+
+
