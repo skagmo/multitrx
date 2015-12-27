@@ -67,7 +67,7 @@ int main(){
 				if((line_len >= 2)&&(line[0]=='$')) parseCmd(&line, line_len, &settings);
 				line_len = 0;
 			}
-			line[line_len++] = c;
+			if (line_len<LINE_SIZE) line[line_len++] = c;
 		}
 	}
 }

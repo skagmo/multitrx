@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ProgramBlock xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ConditionType>OnTrue</ConditionType>
+  <Conditions />
+  <Commands />
+  <ScriptCondition>Program.Setup(()=&gt; {              
+    Program.AddOption("tcp-host", "", "Hostname for TCP-client, empty string to disable" ,"text");
+    Program.AddOption("tcp-port", "1340", "Port for TCP-client", "text");
+    Program.AddOption("serial-port", "/dev/ttyUSB0", "Serial port name for MultiTRX" ,"text");
+    Program.AddOption("serial-baud", "115200", "Serial baud rate", "text");
+    Program.AddOption("auto-add", "true", "Add new modules as they are received for the first time", "checkbox");
+});        
+
+Program.Run();</ScriptCondition>
+  <ScriptSource>// Copy properties to local variables
+var serial_port = Program.Option("serial-port").Value;
+var serial_baud = Convert.ToInt32(Program.Option("serial-baud").Value);
+var tcp_host = Program.Option("tcp-host").Value;
+var tcp_port = Convert.ToInt32(Program.Option("tcp-port").Value);
+bool auto_add = Convert.ToBoolean(Program.Option("auto-add").Value);
+var mtrx_domain = "HomeAutomation.MultiTRX";
+
+Func&lt;ModuleHelper, string, long&gt; sinceLast = (ModuleHelper module, string parameter) =&gt; {
+  long time = (DateTime.UtcNow - module.Parameter(parameter).Statistics.History[0].Timestamp).Ticks;
+  time /= TimeSpan.TicksPerMillisecond;
+  return time;
+};
+
+Func&lt;string, string, string, string, bool&gt; checkModule = (string domain, string address, string deviceType, string widget) =&gt; {
+  var selection = Modules.InDomain(domain).SelectedModules;
+  bool found = false;
+  foreach(var module in selection){
+    if (module.Address==address){
+      found = true;
+      break;
+    }
+  }
+  if (!found){
+    if (auto_add){
+      Program.Notify("Found " + deviceType, address + " added");
+      Program.AddVirtualModule(domain, address, deviceType, widget);
+    }
+    else{
+      Program.Notify("Found " + deviceType, address + " NOT added");
+      return false;
+    }
+  }
+  return true;
+};
+
+Action&lt;string, string&gt; Parse = (string domain, string data) =&gt;{
+  try{
+    if (data[0] == '$'){
+      switch (data[1]){
+        // Esic temperature sensor
+        case 'E':
+          {
+            // Get data fields from string
+            string[] array = ((string)data).Split(',');
+            var address = data.Substring(1,2) + data.Substring(4,1); // Address cannot contain comma!
+            var temp = array[2];
+            var hum = array[3];
+            if (checkModule(domain, address, "Sensor", "homegenie/generic/sensor")){
+              var module = Modules.InDomain(domain).WithAddress(address).Get();
+              if (sinceLast(module, "Sensor.Temperature") &gt; 5000){
+                if (hum != "0") Program.RaiseEvent(module, "Sensor.Humidity", hum, "hum");
+                if (array[4]=="1") Program.RaiseEvent(module, "Status.Battery", "0", "");
+                else Program.RaiseEvent(module, "Status.Battery", "100", "");
+                Program.RaiseEvent(module, "Sensor.Temperature", temp, "temp");
+              }
+            }
+          }
+          break;
+        // Nexa power switch or sensor
+        case 'N':
+          if (data.Length == 12){
+            var address = data.Substring(1, data.Length - 2);
+            if (checkModule(domain, address, "Switch", "homegenie/generic/switch")){
+              var module = Modules.InDomain(domain).WithAddress(address).Get();
+              if (data[data.Length-1]=='1'){
+                if (sinceLast(module, "Status.Level") &gt; 1000)
+                  Program.RaiseEvent(module, "Status.Level", "1", "Indicator");
+              }
+              else{
+                if (module.Parameter("Widget.DisplayModule").Value == "homegenie/generic/doorwindow"){
+                  if (sinceLast(module, "Sensor.DoorWindow") &gt; 1000)
+                    Program.RaiseEvent(module, "Sensor.DoorWindow", "0", "");
+                }
+                else if (sinceLast(module, "Status.Level") &gt; 1000)
+                  Program.RaiseEvent(module, "Status.Level", "0", "");
+              } 
+            }
+          }
+          // Dim-packet from sensor (due to power state 1 and not 2)
+          else if ((data.Length == 13) &amp;&amp; (data[data.Length-2]=='1')){
+       		var address = data.Substring(1, data.Length - 3);
+            if (checkModule(domain, address, "Sensor", "homegenie/generic/doorwindow")){
+              var module = Modules.InDomain(domain).WithAddress(address).Get();
+              if (module.Parameter("Widget.DisplayModule").Value != "homegenie/generic/doorwindow")
+                module.Parameter("Widget.DisplayModule").Value = "homegenie/generic/doorwindow";
+              if (sinceLast(module, "Sensor.DoorWindow") &gt; 1000)
+                Program.RaiseEvent(module, "Sensor.DoorWindow", "1", "");
+            }
+          }
+          break;
+        case 'D':
+          if (data.Length == 5){
+            var address = data.Substring(1, data.Length-2);
+            if (checkModule(domain, address, "Sensor", "homegenie/generic/sensor")){
+              var module = Modules.InDomain(domain).WithAddress(address).Get();
+              char hexChar = data[data.Length-1];
+              int command = (int)hexChar &lt; (int)'A' ? ((int)hexChar - (int)'0') : 10 + ((int)hexChar - (int)'A');
+
+              // Delay bit mask is 0x80
+              if ((command&amp;0x4) == 0){
+                if (sinceLast(module, "Sensor.Tamper") &gt; 2000) Program.RaiseEvent(module, "Sensor.Tamper", "255", " ");
+              }
+              else if ((command&amp;0x3) == 0x3){
+                if (sinceLast(module, "Sensor.MotionDetect") &gt; 2000) Program.RaiseEvent(module, "Sensor.MotionDetect", "255", " ");
+              }
+              else Program.Notify("Unknown message", data);
+            }
+          }
+          break;
+      }
+    }
+  }
+  catch (Exception ex){
+    Program.Notify("SerialPort Status", ex.Message + " " + ex.StackTrace);
+  }
+};
+
+// Handle button presses
+// Will match all "subdomains" (compares from left to right)
+When.WebServiceCallReceived(mtrx_domain, ( args ) =&gt;{
+	var res = "{ 'ResponseValue' : 'ERROR' }";
+	string[] reqs = ((string)args).Split('/');
+    string tx_data = "";
+	try{
+        var subdomain = reqs[0].Substring(reqs[0].LastIndexOf('.') + 1);
+        var address = reqs[1];
+        var module = Modules.InDomain(reqs[0]).WithAddress(address).Get();
+        string[] cmd = reqs[2].Split('.');
+      
+        if (cmd[0] == "Control"){    
+          string level = "";
+          if (cmd[1]=="On") level = "1";
+          else if (cmd[1]=="Off") level = "0";
+          else if (cmd[1]=="Toggle"){
+              if (module.Level&gt;0.005) level = "0";
+              else level = "1";
+          }
+          
+          // If dim-level, send dim-level
+          if (cmd[1] == "Level"){
+            string[] hex = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
+            int index = (int)(Convert.ToDouble(reqs[3])/6.3); // Not 6.25, as that will give 17 steps
+            tx_data = "$" + address + "2" + hex[index] + "\n";
+            level = Convert.ToString(Convert.ToDouble(reqs[3])/100.0);
+          }
+          
+          // If not dim level and off, send off
+          else if (level == "0") tx_data = "$" + address + "0\n";
+                     
+          // If not dim level and all else send according on-signal
+          else if (level == "1"){
+            if (module.IsOfDeviceType("Dimmer")) tx_data = "$" + address + "2F\n";
+            else tx_data = "$" + address + "1\n";
+          }
+          
+          Program.RaiseEvent(module, "Status.Level", level, "");
+        }
+        if (tx_data!=""){
+          if (subdomain=="serial") SerialPort.SendMessage(tx_data);
+          else if (subdomain=="tcp") TcpClient.SendMessage(tx_data);
+        }
+        res = "{ 'ResponseValue' : 'OK' }";
+	}
+	catch (Exception ex){
+		res = ex.Message + " " + ex.StackTrace;
+    }
+	return res;
+});
+
+Action&lt;bool&gt; HandleSerialStatus = (bool connected) =&gt;{
+  Program.Notify("MultiTRX serial", connected ? "Opened" : "Closed");
+};
+
+Action&lt;bool&gt; HandleTcpStatus = (bool connected) =&gt; {
+  	Program.Notify("MultiTRX TCP", connected ? "Connected" : "Disconnected");
+};
+
+Action&lt;string&gt; HandleTcpString = (string data) =&gt; {
+  Parse(mtrx_domain + ".tcp", data);
+};
+
+Action&lt;string&gt; HandleSerialString = (string data) =&gt;{
+  Parse(mtrx_domain + ".serial", data);
+};
+
+if (serial_port!=""){
+  SerialPort.WithName(serial_port)
+      .OnStatusChanged(HandleSerialStatus)
+      .OnStringReceived(HandleSerialString)
+      .Connect(serial_baud);
+}
+
+if (tcp_host!=""){
+  TcpClient.Service(tcp_host)
+      .OnStatusChanged(HandleTcpStatus)
+      .OnStringReceived(HandleTcpString)
+      .Connect(tcp_port);
+}
+
+Program.GoBackground();</ScriptSource>
+  <ScriptErrors>[]</ScriptErrors>
+  <Domain>HomeAutomation.HomeGenie.Automation</Domain>
+  <Address>1000</Address>
+  <Name>MultiGenie</Name>
+  <Description>HomeGenie addon for MultiTRX support. Can connect to two MultiTRX devices; one on a local serial port and one on a remote TCP-server.</Description>
+  <Group>Skagmo</Group>
+  <Features />
+  <ActivationTime>2015-12-27T10:20:56.906492Z</ActivationTime>
+  <TriggerTime>2015-12-27T10:20:56.959944Z</TriggerTime>
+  <Type>CSharp</Type>
+  <IsEnabled>true</IsEnabled>
+</ProgramBlock>

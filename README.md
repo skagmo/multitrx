@@ -3,7 +3,7 @@ MultiTRX - home automation transceiver
 
 <img src="https://github.com/skagmo/multitrx/blob/master/documentation/img/hw10and11.jpg" alt="multitrx" style="width:500">
 
-The MultiTRX is a small USB RF transceiver made to control cheap remote power switches and decode various sensors operating at 433,92 MHz. The project originates back to 2011, and was one of my first serious microcontroller projects. I have now decided to make the project open source, and at the same time releasing a new firmware almost 5 years after the previous firmware was released! See "firmware/1.3/CHANGES" for details. 
+The MultiTRX is a small USB RF transceiver made to control cheap remote power switches and decode various sensors operating at 433,92 MHz. The project originates back to 2011, and was one of my first serious microcontroller projects. I have now decided to make the project open source, and at the same time releases a new firmware almost 5 years after the previous firmware was released! See "firmware/1.3/CHANGES" for details. 
 
 Compatible with many products operating on 433,92 MHz
 -----------------------------------------------------
@@ -18,19 +18,24 @@ Compatible with many products operating on 433,92 MHz
 Firmware project
 ----------------
 
-The project is made in Microchip MPLAB X with XC8 compiler. Firmware 1.3 can be flashed to a MultiTRX hardware 1.1 (red PCB). Hardware 1.0 (green PCB) is not supported in the latest firwmare because the transceiver data pin is not connected to an interrupt pin on the microcontroller. Allowing non-interrupt-driven timing for legacy devices can easily be done by looking at how timing is done in firwmare 1.2. Now it's all open source, so feel obligated ;)
+The project is made in Microchip MPLAB X with XC8 compiler. Firmware 1.3 can be flashed to a MultiTRX hardware 1.1 (red PCB). Hardware 1.0 (green PCB) is not supported in the latest firmware because the transceiver data pin is not connected to an interrupt pin on the microcontroller. Allowing non-interrupt-driven timing for legacy devices can easily be done by looking at how timing is done in firwmare 1.2. Now it's all open source, so feel obligated ;)
 
-To upload the firwmare use on of the two methods below:
+To upload the firmware, use one of the two methods below:
 - Connect a PIC programmer to the six exposed pads on the MultiTRX (while powered)
-- For most devices, a bootloader should be flashed to the microcontroller. Upload the ".hex"-file from "firmware/1.3/multitrx.X/dist/default/production/" using the "ds30 Loader" bootloader and instructions in "firmware/bootloader-and-compiled/"
+- For most devices sold, the microcontroller is flashed with a bootloader. Upload the ".hex"-file from "firmware/1.3/multitrx.X/dist/default/production/" using the "ds30 Loader" bootloader and instructions in "firmware/bootloader-and-compiled/"
 
 Packet scope
 ------------
 
 With firmware 1.3, the MultiTRX can forward raw samples from the ASK transceiver. This is very useful for reverse engineering more protocols.
 - Verify port name and run the python program "reverse-engineering/mtrx-raw.py"
-- When a sequence of bits is received above the noise level, the bit timing is printed and a plot will open
+- When a sequence of bits is received above the noise level, the bit timing is printed and a plot will open in a new window
 - Close the plot to allow for a new sequence to be received
+
+HomeGenie MultiTRX addon
+------------------------
+
+Check out the add-on for HomeGenie in the subfolder "homegenie-addon".
 
 Operation manual
 ----------------
@@ -54,7 +59,6 @@ All communication is done at 8N1 9600 baud (115200 baud for firmware 1.3 due to 
 | $Eh,c,t,H,b | Esic temperature sensor. h = house code, c = channel, t = temperature (degrees Celsius), H = relative humidity (percent), b = low battery indicator (0/1). | $E5,1,12.3,71,0 |
 | $GiiicCp | GAO remote power switch. i = unique ID (hex), c = channel, C = checksum, p = power setting (0/1) | $GABC2F0 $GABC2F1 |
 | $Niiiiiiigcp | Nexa remote power switch. i = unique ID (hex), g = group enable (0/1), c = channel (hex), p = power setting (0/1). Packets with dim level will not be received! | $N1234ABC010 $N1234ABC011 |
-| $Bd | Custom BMC-protocol data. d = data (in ASCII hex or raw data, depending on the "in hex"-parameter). Packet length can vary, and a lot of settings (including repeating) can be set with the settings-command. | $B123 $B313233 |
 
 ### Commands transmitted to the MultiTRX (RF-transmission)
 
