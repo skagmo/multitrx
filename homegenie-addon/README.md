@@ -8,7 +8,7 @@ After discovering many alternatives for home automation such as "HomeGenie", "Op
 HomeGenie was chosen over the other platforms because:
 - The web-interface is far ahead of its competitors. It looks very modern and is quick and reponsive
 - It has a free Android app, as well as more sophisticated and slick non-free app (HomeGenie Plus)
-- It has a comprehensive API and powerful scripting in c#
+- It has a comprehensive API and powerful scripting in C#
 - It is easy to interface with new hardware
 
 Getting started

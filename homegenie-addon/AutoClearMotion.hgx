@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ProgramBlock xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ConditionType>OnTrue</ConditionType>
+  <Conditions />
+  <Commands />
+  <ScriptCondition>Program.Run();</ScriptCondition>
+  <ScriptSource>Func&lt;ModuleHelper, string, double&gt; timeSinceLast = (ModuleHelper module, string parameter) =&gt; {
+	return (DateTime.UtcNow - module.Parameter(parameter).Statistics.History[0].Timestamp).TotalSeconds;
+};
+
+while (Program.IsEnabled){
+	Modules.OfDeviceType("Sensor").WithParameter("Sensor.MotionDetect").Each( (mod) =&gt; {
+		if ((mod.Parameter("Sensor.MotionDetect").Value != "0") &amp;&amp; (timeSinceLast(mod, "Sensor.MotionDetect") &gt; 60)){
+			Program.RaiseEvent(mod, "Sensor.MotionDetect", "0", "");
+        }
+		return false; // continue iterating
+	});
+	Pause(5);
+}
+</ScriptSource>
+  <ScriptErrors>[]</ScriptErrors>
+  <Domain>HomeAutomation.HomeGenie.Automation</Domain>
+  <Address>1004</Address>
+  <Name>AutoClearMotion</Name>
+  <Description>Motion sensors typically only report when activity is detected, and not when it stops. This program clears activity after a minute of inactivity.</Description>
+  <Group>Skagmo</Group>
+  <Features />
+  <ActivationTime>2015-12-28T17:50:00.601956Z</ActivationTime>
+  <TriggerTime>2015-12-28T17:50:00.637079Z</TriggerTime>
+  <Type>CSharp</Type>
+  <IsEnabled>true</IsEnabled>
+</ProgramBlock>
